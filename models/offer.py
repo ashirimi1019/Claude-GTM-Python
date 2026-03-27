@@ -21,7 +21,7 @@ def slugify(name: str) -> str:
 class Offer(BaseModel):
     """An offer definition with positioning — maps to the `offers` table."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, serialize_by_name=True)
 
     id: str = ""
     slug: str = ""

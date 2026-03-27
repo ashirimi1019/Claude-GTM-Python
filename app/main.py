@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.errors import AppError, error_response
-from app.routes import health
+from app.routes import health, skills, offers, campaigns, icp, agents
 
 
 @asynccontextmanager
@@ -47,5 +47,10 @@ def create_app() -> FastAPI:
 
     # Routes
     app.include_router(health.router)
+    app.include_router(skills.router, prefix="/api")
+    app.include_router(offers.router, prefix="/api")
+    app.include_router(campaigns.router, prefix="/api")
+    app.include_router(icp.router, prefix="/api")
+    app.include_router(agents.router, prefix="/api")
 
     return app
