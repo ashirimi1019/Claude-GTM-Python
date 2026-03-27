@@ -142,7 +142,7 @@ Create 3 email variants and 2 LinkedIn variants. Each should reference specific 
             db.table("campaigns")
             .select("id")
             .eq("slug", campaign_slug)
-            .single()
+            .maybe_single()
             .execute()
         )
         campaign_id = campaign_row.data.get("id", "") if campaign_row.data else ""
@@ -205,7 +205,7 @@ def _resolve_vertical_id(offer_slug: str, campaign_slug: str) -> str | None:
             db.table("campaigns")
             .select("vertical_id, offer_id, offers(default_vertical_id)")
             .eq("slug", campaign_slug)
-            .single()
+            .maybe_single()
             .execute()
         )
         if row.data:

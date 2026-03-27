@@ -25,7 +25,7 @@ class Offer(BaseModel):
 
     id: str = ""
     slug: str = ""
-    name: str = Field("", alias="title")
+    title: str = ""
     description: str = ""
     default_vertical_id: str | None = None
     status: str = "draft"  # draft | active | paused | archived

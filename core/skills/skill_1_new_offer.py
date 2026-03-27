@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 import structlog
@@ -74,6 +75,7 @@ async def run_skill_1(config: dict, offers_dir: str = "offers") -> dict:
         db = get_supabase_client()
         db.table("offers").upsert(
             {
+                "id": str(uuid.uuid4()),
                 "slug": slug,
                 "name": config["name"],
                 "description": offer.description,

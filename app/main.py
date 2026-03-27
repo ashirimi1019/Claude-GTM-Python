@@ -8,9 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
+import structlog
+
 from app.errors import AppError, error_response
 from app.routes import health, skills, offers, campaigns, icp, agents, health_monitor, variants, artifacts, cron
 from services.logging import configure_logging
+
+logger = structlog.get_logger()
 
 
 @asynccontextmanager
@@ -38,14 +42,19 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origins.split(","),
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "X-Agent-Secret", "Authorization"],
     )
 
-    # Global error handler
+    # Global error handlers
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         return error_response(exc)
+
+    @app.exception_handler(Exception)
+    async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
+        logger.error("Unhandled exception", error=str(exc), path=request.url.path, exc_info=True)
+        return JSONResponse(status_code=500, content={"error": "Internal server error"})
 
     # Routes
     app.include_router(health.router)

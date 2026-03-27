@@ -83,6 +83,12 @@ async def save_icp_profile(campaign_id: str, body: dict[str, Any]) -> dict[str, 
 async def icp_preview(req: IcpPreviewRequest) -> IcpPreviewResponse:
     """Preview ICP scoring results."""
     try:
+        if req.companies and len(req.companies) > 500:
+            raise AppError(
+                message=f"Too many companies: {len(req.companies)} (max 500)",
+                status_code=422,
+                code="VALIDATION_ERROR",
+            )
         if req.icp_profile and req.companies:
             # Actually run the preview pipeline
             result = run_icp_preview(

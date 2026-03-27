@@ -1,13 +1,20 @@
 """Agents API route tests."""
 
+import os
 from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
+from app.config import get_settings
 from app.main import create_app
+
+AGENT_SECRET = "test-agent-secret"
+AUTH_HEADERS = {"x-agent-secret": AGENT_SECRET}
 
 
 def _client() -> TestClient:
+    os.environ["AGENT_INTERNAL_SECRET"] = AGENT_SECRET
+    get_settings.cache_clear()
     return TestClient(create_app())
 
 
@@ -22,7 +29,7 @@ def test_run_agents_returns_task_id(mock_task):
     resp = client.post("/api/agents/run", json={
         "offer_slug": "test-offer",
         "campaign_slug": "test-campaign",
-    })
+    }, headers=AUTH_HEADERS)
     assert resp.status_code == 200
     data = resp.json()
     assert data["task_id"] == "agent-celery-id-456"
@@ -41,7 +48,7 @@ def test_run_agents_returns_503_when_redis_down(mock_task):
     resp = client.post("/api/agents/run", json={
         "offer_slug": "test-offer",
         "campaign_slug": "test-campaign",
-    })
+    }, headers=AUTH_HEADERS)
     assert resp.status_code == 503
     data = resp.json()
     assert data["error"] == "QUEUE_UNAVAILABLE"
@@ -58,6 +65,6 @@ def test_get_agent_config_returns_defaults():
 
 def test_list_pending_approvals_returns_empty():
     client = _client()
-    resp = client.get("/api/agents/approve")
+    resp = client.get("/api/agents/approve", headers=AUTH_HEADERS)
     assert resp.status_code == 200
     assert resp.json() == []

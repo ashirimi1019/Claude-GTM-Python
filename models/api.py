@@ -40,7 +40,7 @@ class IcpPreviewRequest(BaseModel):
     offer_id: str | None = None
     icp_profile: dict[str, Any] | None = None
     source: str = "db"  # db | live | inline
-    companies: list[dict[str, Any]] | None = None
+    companies: list[dict[str, Any]] | None = Field(default=None, max_length=500)
 
 
 class IcpPreviewResponse(BaseModel):
@@ -55,6 +55,7 @@ class IcpPreviewResponse(BaseModel):
     effective_config: dict[str, Any] = {}
     sample_traces: list[dict[str, Any]] = []
     two_stage_info: dict[str, Any] | None = None
+    # Alias "_meta" is intentional — the frontend expects this field serialized as "_meta" in JSON responses.
     meta: dict[str, Any] = Field(default_factory=dict, alias="_meta")
 
 

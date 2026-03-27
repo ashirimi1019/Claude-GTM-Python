@@ -87,11 +87,22 @@ def run_agent_pipeline(
 
     except Exception as e:
         logger.error("Agent pipeline failed", error=str(e), exc_info=True)
-        return {
-            "status": "failed",
-            "task_id": self.request.id,
-            "error": str(e),
-        }
+        # Publish error to Redis so SSE clients are notified
+        try:
+            from workers.celery_app import celery_app as _app
+            redis_url = _app.conf.get("broker_url", "")
+            if redis_url:
+                import redis as _redis
+                _r = _redis.from_url(redis_url)
+                import json as _json
+                _r.publish(
+                    f"agent-run:{offer_slug}:{campaign_slug}",
+                    _json.dumps({"type": "error", "error": str(e)}),
+                )
+        except Exception:
+            pass  # Best-effort SSE notification
+        # Re-raise so Celery marks the task as FAILURE and can retry
+        raise
 
 
 @celery_app.task(bind=True, name="run_agent_cron")

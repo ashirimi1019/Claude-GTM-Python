@@ -20,10 +20,15 @@ async def list_artifacts(
 ):
     """List all artifacts (output files) for an offer/campaign."""
     settings = get_settings()
-    base = Path(settings.offers_dir) / offer_slug
+    offers_root = Path(settings.offers_dir).resolve()
+    base = (offers_root / offer_slug).resolve()
 
     if campaign_slug:
-        base = base / "campaigns" / campaign_slug
+        base = (base / "campaigns" / campaign_slug).resolve()
+
+    # Path traversal protection
+    if not base.is_relative_to(offers_root):
+        return {"artifacts": []}
 
     if not base.exists():
         return {"artifacts": []}
@@ -33,7 +38,7 @@ async def list_artifacts(
         if path.is_file():
             artifacts.append({
                 "name": path.name,
-                "path": str(path.relative_to(Path(settings.offers_dir))),
+                "path": str(path.relative_to(offers_root)),
                 "size_bytes": path.stat().st_size,
                 "type": path.suffix.lstrip("."),
             })

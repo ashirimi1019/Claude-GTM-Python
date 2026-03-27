@@ -82,7 +82,10 @@ async def batch_enrich_organizations(
                 results[normalize_domain(domain)] = result
 
     tasks = [_enrich_one(d) for d in unique_domains]
-    await asyncio.gather(*tasks, return_exceptions=True)
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.warning("Enrichment batch item failed", index=i, error=str(result))
 
     logger.info(
         "Batch enrichment complete",

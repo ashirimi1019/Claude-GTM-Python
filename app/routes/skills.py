@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import uuid
 from pathlib import Path
 from typing import Any
@@ -16,7 +15,9 @@ from app.errors import AppError
 from app.sse import sse_skill_stream
 from models.api import RunSkillRequest, RunSkillResponse, SkillStatusResponse
 
-logger = logging.getLogger(__name__)
+import structlog
+
+logger = structlog.get_logger()
 
 router = APIRouter(prefix="/skills", tags=["skills"])
 
@@ -65,9 +66,19 @@ async def skill_status(
 ) -> SkillStatusResponse:
     """Check filesystem for skill outputs."""
     settings = get_settings()
-    base = Path(settings.offers_dir) / offer_slug
+    offers_root = Path(settings.offers_dir).resolve()
+    base = (offers_root / offer_slug).resolve()
     if campaign_slug:
-        base = base / "campaigns" / campaign_slug
+        base = (base / "campaigns" / campaign_slug).resolve()
+
+    # Path traversal protection
+    if not base.is_relative_to(offers_root):
+        return SkillStatusResponse(
+            skill_id=skill_id,
+            offer_slug=offer_slug,
+            campaign_slug=campaign_slug,
+            outputs={fname: False for fname in SKILL_OUTPUTS.get(skill_id, [])},
+        )
 
     expected = SKILL_OUTPUTS.get(skill_id, [])
     outputs: dict[str, bool] = {}
@@ -89,14 +100,20 @@ async def run_summary(
 ) -> dict[str, Any]:
     """Read run-summary.json from the campaign leads directory."""
     settings = get_settings()
+    offers_root = Path(settings.offers_dir).resolve()
     path = (
-        Path(settings.offers_dir)
+        offers_root
         / offer
         / "campaigns"
         / campaign
         / "leads"
         / "run-summary.json"
-    )
+    ).resolve()
+
+    # Path traversal protection
+    if not path.is_relative_to(offers_root):
+        raise AppError(message="run-summary.json not found", status_code=404, code="NOT_FOUND")
+
     if not path.exists():
         raise AppError(message="run-summary.json not found", status_code=404, code="NOT_FOUND")
     return json.loads(path.read_text(encoding="utf-8"))

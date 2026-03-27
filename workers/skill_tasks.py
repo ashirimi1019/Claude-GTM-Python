@@ -7,33 +7,29 @@ from typing import Any
 import structlog
 from asgiref.sync import async_to_sync
 
+from core.skills.skill_1_new_offer import run_skill_1
+from core.skills.skill_2_campaign_strategy import run_skill_2
+from core.skills.skill_3_campaign_copy import run_skill_3
+from core.skills.skill_4_find_leads import run_skill_4
+from core.skills.skill_5_launch_outreach import run_skill_5
+from core.skills.skill_6_campaign_review import run_skill_6
 from workers.celery_app import celery_app
 
 logger = structlog.get_logger()
 
-# Registry mapping skill_id → async skill function
-_SKILL_REGISTRY: dict[int, Any] = {}
+# Registry mapping skill_id → async skill function (populated eagerly at module level)
+_SKILL_REGISTRY: dict[int, Any] = {
+    1: run_skill_1,
+    2: run_skill_2,
+    3: run_skill_3,
+    4: run_skill_4,
+    5: run_skill_5,
+    6: run_skill_6,
+}
 
 
 def _get_skill_fn(skill_id: int):
-    """Lazy-load skill functions to avoid circular imports."""
-    if not _SKILL_REGISTRY:
-        from core.skills.skill_1_new_offer import run_skill_1
-        from core.skills.skill_2_campaign_strategy import run_skill_2
-        from core.skills.skill_3_campaign_copy import run_skill_3
-        from core.skills.skill_4_find_leads import run_skill_4
-        from core.skills.skill_5_launch_outreach import run_skill_5
-        from core.skills.skill_6_campaign_review import run_skill_6
-
-        _SKILL_REGISTRY.update({
-            1: run_skill_1,
-            2: run_skill_2,
-            3: run_skill_3,
-            4: run_skill_4,
-            5: run_skill_5,
-            6: run_skill_6,
-        })
-
+    """Look up a skill function by ID."""
     fn = _SKILL_REGISTRY.get(skill_id)
     if fn is None:
         raise ValueError(f"Unknown skill_id: {skill_id}")
@@ -85,11 +81,19 @@ def run_skill_task(
 
     except Exception as e:
         logger.error("Skill failed", skill_id=skill_id, error=str(e), exc_info=True)
-        return {
-            "status": "failed",
-            "skill_id": skill_id,
-            "offer_slug": offer_slug,
-            "campaign_slug": campaign_slug,
-            "task_id": self.request.id,
-            "error": str(e),
-        }
+        # Publish error to Redis so SSE clients are notified
+        try:
+            from workers.celery_app import celery_app as _app
+            redis_url = _app.conf.get("broker_url", "")
+            if redis_url:
+                import redis as _redis
+                _r = _redis.from_url(redis_url)
+                import json as _json
+                _r.publish(
+                    f"skill-run:{offer_slug}:{campaign_slug or 'none'}:{skill_id}",
+                    _json.dumps({"type": "error", "error": str(e)}),
+                )
+        except Exception:
+            pass  # Best-effort SSE notification
+        # Re-raise so Celery marks the task as FAILURE and can retry
+        raise

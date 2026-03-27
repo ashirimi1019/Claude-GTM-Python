@@ -7,7 +7,7 @@ from typing import Any
 
 import structlog
 
-from app.config import get_settings
+from clients.openai_client import _get_openai_client
 
 logger = structlog.get_logger()
 
@@ -23,10 +23,7 @@ async def reason_about(agent_name: str, prompt: str, context: str) -> dict[str, 
     Returns:
         Parsed JSON dict with 'recommendations' list and 'reasoning' string.
     """
-    from openai import AsyncOpenAI
-
-    settings = get_settings()
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = _get_openai_client()
 
     system_prompt = f"""You are {agent_name}, an AI agent in a multi-agent outbound campaign system.
 

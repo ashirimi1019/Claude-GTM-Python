@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import uuid
 from typing import Any
 
@@ -12,7 +11,9 @@ from app.config import get_settings
 from app.errors import AppError
 from models.api import AgentConfigRequest, ApproveActionRequest, RunAgentsRequest
 
-logger = logging.getLogger(__name__)
+import structlog
+
+logger = structlog.get_logger()
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
@@ -29,7 +30,7 @@ async def verify_agent_secret(
     return x_agent_secret
 
 
-@router.post("/run")
+@router.post("/run", dependencies=[Depends(verify_agent_secret)])
 async def run_agents(req: RunAgentsRequest) -> dict[str, str]:
     """Launch agent pipeline via Celery."""
     try:
@@ -64,7 +65,7 @@ async def get_agent_config(campaign_id: str = Query(...)) -> dict[str, Any]:
     }
 
 
-@router.post("/config")
+@router.post("/config", dependencies=[Depends(verify_agent_secret)])
 async def save_agent_config(req: AgentConfigRequest) -> dict[str, Any]:
     """Save agent config (stub)."""
     return {
@@ -75,13 +76,13 @@ async def save_agent_config(req: AgentConfigRequest) -> dict[str, Any]:
     }
 
 
-@router.get("/approve")
+@router.get("/approve", dependencies=[Depends(verify_agent_secret)])
 async def list_pending_approvals() -> list[dict[str, Any]]:
     """Return pending approval actions (stub)."""
     return []
 
 
-@router.post("/approve")
+@router.post("/approve", dependencies=[Depends(verify_agent_secret)])
 async def approve_action(req: ApproveActionRequest) -> dict[str, Any]:
     """Approve or reject an agent action (stub)."""
     return {
