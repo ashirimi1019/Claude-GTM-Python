@@ -117,6 +117,8 @@ async def icp_preview(req: IcpPreviewRequest) -> IcpPreviewResponse:
             summary={"total_companies": 0, "qualified": 0},
             effective_config={},
         )
+    except AppError:
+        raise
     except Exception as exc:
         logger.error("icp_preview failed", fn="icp_preview", err=str(exc))
         raise to_app_error(exc)

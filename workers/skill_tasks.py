@@ -13,6 +13,7 @@ from core.skills.skill_3_campaign_copy import run_skill_3
 from core.skills.skill_4_find_leads import run_skill_4
 from core.skills.skill_5_launch_outreach import run_skill_5
 from core.skills.skill_6_campaign_review import run_skill_6
+from services.run_tracker import SkillRunTracker
 from workers.celery_app import celery_app
 
 logger = structlog.get_logger()
@@ -69,6 +70,20 @@ def run_skill_task(
         else:
             # Skills 3-6: offer_slug + campaign_slug
             result = async_to_sync(skill_fn)(offer_slug, campaign_slug or "")
+
+        # Send SSE termination event so frontend knows the stream is complete
+        try:
+            broker_url = celery_app.conf.get("broker_url", "")
+            if broker_url:
+                tracker = SkillRunTracker(
+                    skill_id=skill_id,
+                    offer_slug=offer_slug,
+                    campaign_slug=campaign_slug,
+                    redis_url=broker_url,
+                )
+                tracker.finish()
+        except Exception:
+            pass  # Best-effort SSE termination
 
         return {
             "status": "completed",

@@ -5,9 +5,11 @@ Critical safety feature — auto-pauses sequences on high bounce rates.
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 import structlog
+
+from app.routes.agents import verify_agent_secret
 
 logger = structlog.get_logger()
 
@@ -17,7 +19,7 @@ router = APIRouter(prefix="/agents", tags=["health-monitor"])
 BOUNCE_RATE_THRESHOLD = 0.05  # 5%
 
 
-@router.post("/health")
+@router.post("/health", dependencies=[Depends(verify_agent_secret)])
 async def run_health_monitor():
     """Health monitor cron endpoint.
 

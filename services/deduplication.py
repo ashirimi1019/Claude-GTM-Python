@@ -73,7 +73,16 @@ def deduplicate_companies(companies: list[dict[str, Any]]) -> list[dict[str, Any
                     existing[key] = value
                 elif isinstance(value, list) and isinstance(existing.get(key), list):
                     # Combine arrays, deduplicate
-                    combined = list(set(existing[key] + value))
+                    combined = existing[key] + value
+                    try:
+                        combined = list(set(combined))
+                    except TypeError:
+                        # Contains unhashable types (dicts), use manual dedup
+                        seen = []
+                        for item in combined:
+                            if item not in seen:
+                                seen.append(item)
+                        combined = seen
                     existing[key] = combined
         else:
             company_copy = company.copy()

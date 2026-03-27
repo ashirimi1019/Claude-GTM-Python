@@ -1,6 +1,6 @@
 # CirrusLabs Python Backend
 
-**Stack:** Python 3.12 · FastAPI · Celery + Redis · Supabase · Apollo.io · OpenAI
+**Stack:** Python 3.13 · FastAPI · Celery + Redis · Supabase · Apollo.io · OpenAI
 **Repo:** https://github.com/ashirimi1019/Claude-GTM-Python
 
 ---

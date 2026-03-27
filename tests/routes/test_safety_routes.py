@@ -1,17 +1,25 @@
 """Safety routes tests — health monitor, variants, artifacts, cron."""
 
+import os
+
 from fastapi.testclient import TestClient
+from app.config import get_settings
 from app.main import create_app
+
+AGENT_SECRET = "test-agent-secret"
+AUTH_HEADERS = {"x-agent-secret": AGENT_SECRET}
 
 
 def _client():
+    os.environ["AGENT_INTERNAL_SECRET"] = AGENT_SECRET
+    get_settings.cache_clear()
     return TestClient(create_app())
 
 
 class TestHealthMonitor:
     def test_health_monitor_returns_results(self):
         client = _client()
-        resp = client.post("/api/agents/health")
+        resp = client.post("/api/agents/health", headers=AUTH_HEADERS)
         assert resp.status_code == 200
         data = resp.json()
         assert "sequences_checked" in data

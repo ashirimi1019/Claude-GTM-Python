@@ -85,3 +85,26 @@ class SkillRunTracker:
             "error": error,
         }
         self._publish(entry)
+
+    def finish(self) -> None:
+        """Publish a termination event so SSE clients know the stream is complete."""
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "type": "done",
+            "step": "done",
+            "message": "Skill run complete",
+        }
+        self._publish(entry)
+
+    def close(self) -> None:
+        """Close the underlying Redis connection."""
+        try:
+            self.redis_client.close()
+        except redis.RedisError:
+            logger.warning("Failed to close Redis connection for channel %s", self.channel)
+
+    def __enter__(self) -> "SkillRunTracker":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # noqa: ANN001
+        self.close()

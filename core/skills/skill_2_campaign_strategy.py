@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 import structlog
@@ -92,6 +93,7 @@ async def run_skill_2(config: dict, offers_dir: str = "offers") -> dict:
 
         db.table("campaigns").upsert(
             {
+                "id": str(uuid.uuid4()),
                 "offer_id": offer_id,
                 "slug": campaign_slug,
                 "title": config["name"],

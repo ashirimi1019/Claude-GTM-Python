@@ -54,7 +54,7 @@ async def run_agents(req: RunAgentsRequest) -> dict[str, str]:
         )
 
 
-@router.get("/config")
+@router.get("/config", dependencies=[Depends(verify_agent_secret)])
 async def get_agent_config(campaign_id: str = Query(...)) -> dict[str, Any]:
     """Return autonomy config for a campaign (stub)."""
     return {

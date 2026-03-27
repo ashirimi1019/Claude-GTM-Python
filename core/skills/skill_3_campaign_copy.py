@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 import structlog
@@ -152,27 +153,32 @@ Create 3 email variants and 2 LinkedIn variants. Each should reference specific 
             for v in email_variants:
                 db.table("message_variants").upsert(
                     {
+                        "id": str(uuid.uuid4()),
                         "campaign_id": campaign_id,
                         "channel": "email",
                         "variant_name": v.get("variant_name", ""),
                         "subject": v.get("subject", ""),
                         "body": v.get("body", ""),
                     },
+                    on_conflict="id",
                 ).execute()
 
             for v in linkedin_variants:
                 db.table("message_variants").upsert(
                     {
+                        "id": str(uuid.uuid4()),
                         "campaign_id": campaign_id,
                         "channel": "linkedin",
                         "variant_name": v.get("variant_name", ""),
                         "body": v.get("body", ""),
                     },
+                    on_conflict="id",
                 ).execute()
 
             # Track cost
             db.table("tool_usage").insert(
                 {
+                    "id": str(uuid.uuid4()),
                     "tool": "openai",
                     "action": "generate_copy",
                     "cost_usd": cost_usd,

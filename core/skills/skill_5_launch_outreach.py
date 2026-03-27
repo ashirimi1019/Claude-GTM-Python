@@ -225,6 +225,10 @@ def _read_copy_variants(filepath: Path) -> list[dict[str, str]]:
         if not section:
             continue
 
+        # Skip file-level headers (e.g. "# Email Variants\n\n")
+        if section.startswith("# "):
+            continue
+
         lines = section.split("\n", 1)
         subject = lines[0].strip()
         body = lines[1].strip() if len(lines) > 1 else ""

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     log_level: str = "info"
 
     # CORS
-    cors_origins: str = "http://localhost:3001"
+    cors_origins: str = "http://localhost:3000,http://localhost:3001"
 
     # Directories
     context_dir: str = "context"

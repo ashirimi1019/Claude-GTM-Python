@@ -56,7 +56,7 @@ def test_run_agents_returns_503_when_redis_down(mock_task):
 
 def test_get_agent_config_returns_defaults():
     client = _client()
-    resp = client.get("/api/agents/config", params={"campaign_id": "abc"})
+    resp = client.get("/api/agents/config", params={"campaign_id": "abc"}, headers=AUTH_HEADERS)
     assert resp.status_code == 200
     data = resp.json()
     assert data["campaign_id"] == "abc"
