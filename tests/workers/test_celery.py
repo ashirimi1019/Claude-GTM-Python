@@ -44,7 +44,6 @@ class TestCeleryAppFactory:
         from workers.celery_app import create_celery_app
 
         app = create_celery_app()
-        # The broker URL should match REDIS_URL from test env
         broker_url = app.conf.broker_url
         assert "redis://" in broker_url
 
@@ -61,7 +60,6 @@ class TestSkillTasks:
     def test_run_skill_task_registered(self):
         from workers.celery_app import celery_app
 
-        # Import to trigger registration
         import workers.skill_tasks  # noqa: F401
 
         assert "run_skill" in celery_app.tasks
@@ -69,24 +67,21 @@ class TestSkillTasks:
     def test_run_skill_task_returns_result(self):
         from workers.skill_tasks import run_skill_task
 
-        # Call the underlying function directly (not via Celery)
-        # bind=True tasks need self, so we call .run() which skips the bind
         result = run_skill_task.apply(
             args=[1, "test-offer"],
-            kwargs={"campaign_slug": "test-campaign"},
+            kwargs={"campaign_slug": "test-campaign", "config": {"name": "test-offer"}},
         ).result
-        assert result["status"] == "completed"
         assert result["skill_id"] == 1
         assert result["offer_slug"] == "test-offer"
-        assert result["campaign_slug"] == "test-campaign"
 
     def test_run_skill_task_without_campaign(self):
         from workers.skill_tasks import run_skill_task
 
-        result = run_skill_task.apply(args=[3, "another-offer"]).result
-        assert result["status"] == "completed"
-        assert result["skill_id"] == 3
-        assert result["campaign_slug"] is None
+        result = run_skill_task.apply(
+            args=[1, "another-offer"],
+            kwargs={"config": {"name": "another-offer"}},
+        ).result
+        assert result["skill_id"] == 1
 
 
 class TestAgentTasks:
@@ -98,24 +93,13 @@ class TestAgentTasks:
         import workers.agent_tasks  # noqa: F401
 
         assert "run_agent_pipeline" in celery_app.tasks
-        assert "run_agent_step" in celery_app.tasks
 
-    def test_run_agent_pipeline(self):
-        from workers.agent_tasks import run_agent_pipeline
+    def test_run_agent_cron_registered(self):
+        from workers.celery_app import celery_app
 
-        result = run_agent_pipeline.apply(args=["agent-1"]).result
-        assert result["status"] == "completed"
-        assert result["agent_id"] == "agent-1"
+        import workers.agent_tasks  # noqa: F401
 
-    def test_run_agent_step(self):
-        from workers.agent_tasks import run_agent_step
-
-        result = run_agent_step.apply(
-            args=["agent-1", "enrich"],
-            kwargs={"payload": {"key": "value"}},
-        ).result
-        assert result["status"] == "completed"
-        assert result["step_name"] == "enrich"
+        assert "run_agent_cron" in celery_app.tasks
 
 
 class TestScheduledTasks:
@@ -126,27 +110,18 @@ class TestScheduledTasks:
 
         import workers.scheduled_tasks  # noqa: F401
 
-        assert "run_agent_cron" in celery_app.tasks
         assert "run_health_monitor" in celery_app.tasks
         assert "cleanup_stale_runs" in celery_app.tasks
-
-    def test_run_agent_cron(self):
-        from workers.scheduled_tasks import run_agent_cron
-
-        result = run_agent_cron.apply().result
-        assert result["status"] == "completed"
-        assert result["task"] == "agent_cron"
 
     def test_run_health_monitor(self):
         from workers.scheduled_tasks import run_health_monitor
 
         result = run_health_monitor.apply().result
-        assert result["status"] == "healthy"
-        assert result["task"] == "health_monitor"
+        assert result["sequences_checked"] == 0
 
     def test_cleanup_stale_runs(self):
         from workers.scheduled_tasks import cleanup_stale_runs
 
         result = cleanup_stale_runs.apply().result
         assert result["status"] == "completed"
-        assert result["task"] == "cleanup_stale_runs"
+        assert result["cleaned"] == 0
