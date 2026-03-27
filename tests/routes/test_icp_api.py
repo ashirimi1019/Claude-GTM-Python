@@ -61,7 +61,9 @@ class TestSaveIcpProfile:
         mock_sb.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(
             data=[{"id": "c1"}]
         )
-        mock_sb.table.return_value.update.return_value.eq.return_value.execute.return_value = MagicMock(data=[{"id": "c1"}])
+        mock_sb.table.return_value.update.return_value.eq.return_value.execute.return_value = MagicMock(
+            data=[{"id": "c1"}]
+        )
 
         valid_profile = {"version": 1, "mode": "basic"}
         with patch("app.routes.icp.get_supabase_client", return_value=mock_sb):

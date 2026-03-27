@@ -7,7 +7,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-
 ChannelType = Literal["email", "linkedin", "sms"]
 MessageStatus = Literal[
     "draft", "scheduled", "sent", "bounced", "opened", "clicked", "replied", "opted_out"

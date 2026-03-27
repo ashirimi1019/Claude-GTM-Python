@@ -1,12 +1,10 @@
 """Apollo client tests — using httpx mocking."""
 
-import pytest
 
-from clients.apollo.utils import normalize_domain
-from clients.apollo.errors import handle_apollo_error, ApolloError
-from clients.apollo.types import ApolloQueryParams
 from clients.apollo.enrichment import merge_enriched_data
-from clients.apollo.types import ApolloOrgEnrichmentResult
+from clients.apollo.errors import ApolloError, handle_apollo_error
+from clients.apollo.types import ApolloOrgEnrichmentResult, ApolloQueryParams
+from clients.apollo.utils import normalize_domain
 
 
 class TestNormalizeDomain:

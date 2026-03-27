@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter
@@ -62,8 +62,8 @@ async def create_offer(body: OfferCreate) -> Offer:
             "status": "draft",
             "allowed_countries": body.allowed_countries,
             "allowed_us_states": body.allowed_us_states,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
         result = sb.table("offers").insert(row).execute()
         return Offer.model_validate(result.data[0])

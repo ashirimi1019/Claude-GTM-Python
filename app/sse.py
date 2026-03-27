@@ -29,7 +29,7 @@ async def sse_skill_stream(channel: str, redis_url: str, request: Request) -> Ev
     pubsub = r.pubsub()
     await pubsub.subscribe(channel)
 
-    async def event_generator() -> AsyncGenerator[dict, None]:
+    async def event_generator() -> AsyncGenerator[dict]:
         start_time = time.monotonic()
         try:
             async for message in pubsub.listen():

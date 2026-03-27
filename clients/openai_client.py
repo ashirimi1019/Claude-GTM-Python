@@ -108,7 +108,9 @@ Tech Stack: {', '.join(company.get('tech_stack', []))}
 
 {context}
 
-Respond in JSON: {{"classification": "high-fit|moderate-fit|low-fit", "industry": "...", "growth_stage": "...", "recommendation": "..."}}"""
+Respond in JSON:
+{{"classification": "high-fit|moderate-fit|low-fit", "industry": "...",
+"growth_stage": "...", "recommendation": "..."}}"""
 
     try:
         response = await client.chat.completions.create(

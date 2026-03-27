@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -78,5 +78,5 @@ async def run_lead_quality(
         agent_name=AGENT_NAME,
         recommendations=recommendations,
         raw_reasoning=result.get("reasoning", ""),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )

@@ -2,7 +2,7 @@
 
 import pytest
 
-from services.icp.migration import migrate_icp_profile, legacy_config_to_icp_profile
+from services.icp.migration import legacy_config_to_icp_profile, migrate_icp_profile
 
 
 class TestMigrateIcpProfile:

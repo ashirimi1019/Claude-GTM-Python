@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -26,7 +26,7 @@ class AgentResultV2(BaseModel):
     agent_name: str
     recommendations: list[RecommendationV2] = Field(default_factory=list)
     raw_reasoning: str = ""
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class HealthContext(BaseModel):

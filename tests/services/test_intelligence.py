@@ -1,6 +1,6 @@
 """Intelligence service tests."""
 
-from services.intelligence import assign_contact_segment, _rule_based_classification
+from services.intelligence import _rule_based_classification, assign_contact_segment
 
 
 class TestAssignContactSegment:

@@ -8,7 +8,6 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Test 1: Groups contacts by segment
 # ---------------------------------------------------------------------------
@@ -71,8 +70,14 @@ async def test_creates_sequences_per_segment(tmp_path: Path):
         patch("core.skills.skill_5_launch_outreach.create_sequence", side_effect=mock_create_seq),
         patch("core.skills.skill_5_launch_outreach.add_email_step", new_callable=AsyncMock),
         patch("core.skills.skill_5_launch_outreach.activate_sequence", new_callable=AsyncMock),
-        patch("core.skills.skill_5_launch_outreach.enroll_sequence", new_callable=AsyncMock, return_value={"enrolled": 1, "failed": 0}),
-        patch("core.skills.skill_5_launch_outreach.get_email_accounts", new_callable=AsyncMock, return_value=[{"id": "acct-1"}]),
+        patch(
+            "core.skills.skill_5_launch_outreach.enroll_sequence",
+            new_callable=AsyncMock, return_value={"enrolled": 1, "failed": 0},
+        ),
+        patch(
+            "core.skills.skill_5_launch_outreach.get_email_accounts",
+            new_callable=AsyncMock, return_value=[{"id": "acct-1"}],
+        ),
     ):
         from core.skills.skill_5_launch_outreach import run_skill_5
 

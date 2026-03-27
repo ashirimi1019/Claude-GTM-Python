@@ -22,12 +22,12 @@ from clients.apollo.types import ApolloQueryParams
 from services.csv_export import export_companies_to_csv, export_contacts_to_csv
 from services.deduplication import deduplicate_companies, deduplicate_contacts
 from services.geography import filter_companies_by_geography, resolve_geography
-from services.intelligence import assign_contact_segment
 from services.icp.apollo_query import build_apollo_query
 from services.icp.executor import execute_icp_pipeline
-from services.icp.normalizer import normalize_for_search_stage, normalize_icp_profile
+from services.icp.normalizer import normalize_for_search_stage
 from services.icp.resolver import resolve_execution_config
 from services.icp.types import IcpProfile
+from services.intelligence import assign_contact_segment
 
 logger = structlog.get_logger()
 

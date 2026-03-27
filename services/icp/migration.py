@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from services.icp.types import IcpProfile, StrictnessConfig, EnrichmentConfig
+from services.icp.types import EnrichmentConfig, IcpProfile, StrictnessConfig
 
 
 def migrate_icp_profile(raw: dict[str, Any] | None) -> IcpProfile:

@@ -40,7 +40,10 @@ def detect_conflicts(results: list[AgentResultV2]) -> list[ConflictResolution]:
                             winner_agent=result.agent_id,
                             loser_agent=result.agent_id,
                             domain=rec.domain,
-                            reason=f"Intra-agent dedup: kept higher confidence ({rec.confidence:.2f} > {existing[1]:.2f})",
+                            reason=(
+                                f"Intra-agent dedup: kept higher confidence"
+                                f" ({rec.confidence:.2f} > {existing[1]:.2f})"
+                            ),
                         )
                     )
                 domain_best[rec.domain] = (i, rec.confidence)

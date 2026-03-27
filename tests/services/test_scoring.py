@@ -1,9 +1,9 @@
 """Legacy scoring service tests."""
 
 from services.scoring import (
+    DEFAULT_SCORING_CONFIG,
     parse_scoring_config,
     resolve_scoring_config,
-    DEFAULT_SCORING_CONFIG,
 )
 
 

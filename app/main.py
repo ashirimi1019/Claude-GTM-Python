@@ -1,17 +1,16 @@
 """FastAPI application factory."""
 
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-import structlog
-
 from app.errors import AppError, error_response
-from app.routes import health, skills, offers, campaigns, icp, agents, health_monitor, variants, artifacts, cron
+from app.routes import agents, artifacts, campaigns, cron, health, health_monitor, icp, offers, skills, variants
 from services.logging import configure_logging
 
 logger = structlog.get_logger()

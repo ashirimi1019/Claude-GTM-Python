@@ -5,9 +5,9 @@ from __future__ import annotations
 import httpx
 import structlog
 
-from clients.apollo.types import ApolloContact, ApolloCompany
-from clients.apollo.utils import APOLLO_BASE_URL, api_headers
 from clients.apollo.errors import handle_apollo_error
+from clients.apollo.types import ApolloContact
+from clients.apollo.utils import APOLLO_BASE_URL, api_headers
 
 logger = structlog.get_logger()
 

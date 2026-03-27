@@ -9,7 +9,6 @@ import pytest
 
 from clients.apollo.types import ApolloCompany, ApolloContact, ApolloSearchResponse
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -74,7 +73,7 @@ async def test_geography_filter_before_enrichment(tmp_path: Path):
         patch("core.skills.skill_4_find_leads.search_decision_makers", side_effect=mock_search_dm),
         patch("core.skills.skill_4_find_leads.batch_enrich_organizations", new_callable=AsyncMock, return_value={}),
     ):
-        result = await run_skill_4(
+        await run_skill_4(
             offer_slug="test-offer",
             campaign_slug="test-campaign",
             offers_dir=str(tmp_path),

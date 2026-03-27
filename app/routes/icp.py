@@ -10,8 +10,8 @@ from fastapi import APIRouter
 from app.errors import AppError, to_app_error
 from clients.supabase_client import get_supabase_client
 from models.api import IcpPreviewRequest, IcpPreviewResponse
-from services.icp.validator import validate_icp_profile
 from services.icp.preview import run_icp_preview
+from services.icp.validator import validate_icp_profile
 
 logger = structlog.get_logger()
 router = APIRouter(tags=["icp"])
@@ -70,7 +70,7 @@ async def save_icp_profile(campaign_id: str, body: dict[str, Any]) -> dict[str, 
             )
 
         # Update icp_profile
-        result = sb.table("campaigns").update({"icp_profile": body}).eq("id", campaign_id).execute()
+        sb.table("campaigns").update({"icp_profile": body}).eq("id", campaign_id).execute()
         return {"campaign_id": campaign_id, "icp_profile": body, "saved": True}
     except AppError:
         raise

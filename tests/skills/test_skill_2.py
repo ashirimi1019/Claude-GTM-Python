@@ -1,7 +1,7 @@
 """Tests for Skill 2 — Campaign Strategy."""
 
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -35,7 +35,8 @@ class TestSkill2:
         """Skill 2 creates strategy.md in the campaign directory."""
         with patch("core.skills.skill_2_campaign_strategy.get_supabase_client") as mock_db:
             mock_client = MagicMock()
-            mock_client.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(data={"id": "offer-123"})
+            mock_chain = mock_client.table.return_value.select.return_value.eq.return_value
+            mock_chain.maybe_single.return_value.execute.return_value = MagicMock(data={"id": "offer-123"})
             mock_client.table.return_value.upsert.return_value.execute.return_value = None
             mock_db.return_value = mock_client
 
@@ -56,7 +57,8 @@ class TestSkill2:
         """Skill 2 generates a URL-safe slug from the campaign name."""
         with patch("core.skills.skill_2_campaign_strategy.get_supabase_client") as mock_db:
             mock_client = MagicMock()
-            mock_client.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(data={"id": "offer-123"})
+            mock_chain = mock_client.table.return_value.select.return_value.eq.return_value
+            mock_chain.maybe_single.return_value.execute.return_value = MagicMock(data={"id": "offer-123"})
             mock_client.table.return_value.upsert.return_value.execute.return_value = None
             mock_db.return_value = mock_client
 

@@ -29,14 +29,14 @@ def run_agent_pipeline(
     )
 
     try:
-        from core.agents.snapshot import build_snapshot
-        from core.agents.lead_quality import run_lead_quality
-        from core.agents.icp_tuner import run_icp_tuner
-        from core.agents.copy_optimizer import run_copy_optimizer
-        from core.agents.orchestrator import run_orchestrator
+        from core.agents.action_executor import execute_actions
         from core.agents.conflict_detector import detect_conflicts
         from core.agents.context_builder import build_prior_context
-        from core.agents.action_executor import execute_actions
+        from core.agents.copy_optimizer import run_copy_optimizer
+        from core.agents.icp_tuner import run_icp_tuner
+        from core.agents.lead_quality import run_lead_quality
+        from core.agents.orchestrator import run_orchestrator
+        from core.agents.snapshot import build_snapshot
 
         # Build campaign snapshot
         snapshot = async_to_sync(build_snapshot)(campaign_slug)

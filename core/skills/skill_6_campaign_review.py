@@ -11,7 +11,7 @@ Phases:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -200,7 +200,7 @@ def generate_learnings_md(
     analysis: dict[str, Any],
 ) -> str:
     """Generate a learnings.md file from campaign metrics and analysis."""
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     total_sent = analysis.get("total_sent", 0)
 
     lines = [
@@ -264,7 +264,7 @@ def _append_to_what_works(
 ) -> None:
     """Append a campaign learning entry to what-works.md."""
     filepath.parent.mkdir(parents=True, exist_ok=True)
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    now = datetime.now(UTC).strftime("%Y-%m-%d")
 
     entry = (
         f"\n\n---\n"

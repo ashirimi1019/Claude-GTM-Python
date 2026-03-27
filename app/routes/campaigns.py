@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter
@@ -73,8 +73,8 @@ async def create_campaign(body: CampaignCreate) -> Campaign:
             "status": "draft",
             "allowed_countries": body.allowed_countries,
             "allowed_us_states": body.allowed_us_states,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
         result = sb.table("campaigns").insert(row).execute()
         return Campaign.model_validate(result.data[0])

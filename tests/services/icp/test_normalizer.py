@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from services.icp.constants import ALL_FUNDING_STAGES, SIZE_PRESETS, STRICTNESS_BUNDLES
+from services.icp.constants import SIZE_PRESETS
 from services.icp.normalizer import normalize_for_search_stage, normalize_icp_profile
 from services.icp.types import (
     CompanySizeFilter,
@@ -14,7 +14,6 @@ from services.icp.types import (
     StrictnessConfig,
     TechMustHave,
     TechStackScoring,
-    IntentScoring,
 )
 
 

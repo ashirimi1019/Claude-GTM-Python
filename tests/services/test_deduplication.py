@@ -1,8 +1,8 @@
 """Deduplication service tests."""
 
 from services.deduplication import (
-    deduplicate_contacts,
     deduplicate_companies,
+    deduplicate_contacts,
     deduplicate_messages,
 )
 

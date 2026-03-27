@@ -1,9 +1,9 @@
 """Personalization service tests."""
 
 from services.personalization import (
+    build_signal_reference,
     personalize_email_body,
     personalize_linkedin_message,
-    build_signal_reference,
 )
 
 

@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
-
 import structlog
+from fastapi import APIRouter
 
 logger = structlog.get_logger()
 

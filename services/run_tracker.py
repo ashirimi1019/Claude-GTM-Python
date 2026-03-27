@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import redis
-
 import structlog
 
 logger = structlog.get_logger()
@@ -46,7 +45,7 @@ class SkillRunTracker:
     def log(self, message: str, level: str = "info") -> None:
         """Log a freeform message."""
         entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "level": level,
             "message": message,
         }
@@ -55,7 +54,7 @@ class SkillRunTracker:
     def start_step(self, name: str) -> None:
         """Mark a named step as started."""
         entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "level": "info",
             "message": f"Step started: {name}",
             "step": name,
@@ -66,7 +65,7 @@ class SkillRunTracker:
     def complete_step(self, name: str) -> None:
         """Mark a named step as completed."""
         entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "level": "info",
             "message": f"Step completed: {name}",
             "step": name,
@@ -77,7 +76,7 @@ class SkillRunTracker:
     def fail_step(self, name: str, error: str) -> None:
         """Mark a named step as failed."""
         entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "level": "error",
             "message": f"Step failed: {name} — {error}",
             "step": name,
@@ -89,7 +88,7 @@ class SkillRunTracker:
     def finish(self) -> None:
         """Publish a termination event so SSE clients know the stream is complete."""
         entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "type": "done",
             "step": "done",
             "message": "Skill run complete",
@@ -103,7 +102,7 @@ class SkillRunTracker:
         except redis.RedisError:
             logger.warning("Failed to close Redis connection for channel %s", self.channel)
 
-    def __enter__(self) -> "SkillRunTracker":
+    def __enter__(self) -> SkillRunTracker:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # noqa: ANN001

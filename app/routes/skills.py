@@ -6,15 +6,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+import structlog
 from fastapi import APIRouter, Query, Request
-from fastapi.responses import StreamingResponse
 
 from app.config import get_settings
 from app.errors import AppError
 from app.sse import sse_skill_stream
 from models.api import RunSkillRequest, RunSkillResponse, SkillStatusResponse
-
-import structlog
 
 logger = structlog.get_logger()
 

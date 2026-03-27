@@ -14,7 +14,6 @@ from services.icp.executor import (
 )
 from services.icp.types import NormalizedIcpRules
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -224,12 +223,18 @@ class TestScoringDimensions:
         assert trace.dimensions["hiring_signal"] == 0.0
 
     def test_company_size_ideal(self):
-        r = _rules(scoring={"company_size": {"ideal_min": 200, "ideal_max": 1000, "acceptable_max": 2000, "partial_min": 100}})
+        r = _rules(scoring={"company_size": {
+            "ideal_min": 200, "ideal_max": 1000,
+            "acceptable_max": 2000, "partial_min": 100,
+        }})
         trace = score_company_icp(_company(employee_count=500), r)
         assert trace.dimensions["company_size"] == 50.0
 
     def test_company_size_acceptable(self):
-        r = _rules(scoring={"company_size": {"ideal_min": 200, "ideal_max": 400, "acceptable_max": 2000, "partial_min": 100}})
+        r = _rules(scoring={"company_size": {
+            "ideal_min": 200, "ideal_max": 400,
+            "acceptable_max": 2000, "partial_min": 100,
+        }})
         trace = score_company_icp(_company(employee_count=500), r)
         assert trace.dimensions["company_size"] == 30.0
 

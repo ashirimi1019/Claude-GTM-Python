@@ -1,7 +1,6 @@
 """Tests for Skill 3 — Campaign Copy."""
 
-from pathlib import Path
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -52,12 +51,16 @@ class TestSkill3:
     async def test_reads_strategy_and_calls_openai(self, _campaign_dir):
         """Skill 3 reads strategy.md and calls OpenAI generate_copy."""
         with (
-            patch("core.skills.skill_3_campaign_copy.generate_copy", new_callable=AsyncMock, return_value=MOCK_COPY_RESULT) as mock_gen,
+            patch(
+                "core.skills.skill_3_campaign_copy.generate_copy",
+                new_callable=AsyncMock, return_value=MOCK_COPY_RESULT,
+            ) as mock_gen,
             patch("core.skills.skill_3_campaign_copy._resolve_vertical_id", return_value=None),
             patch("clients.supabase_client.get_supabase_client") as mock_db,
         ):
             mock_client = MagicMock()
-            mock_client.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(data={"id": "camp-123"})
+            mock_chain = mock_client.table.return_value.select.return_value.eq.return_value
+            mock_chain.maybe_single.return_value.execute.return_value = MagicMock(data={"id": "camp-123"})
             mock_client.table.return_value.upsert.return_value.execute.return_value = None
             mock_client.table.return_value.insert.return_value.execute.return_value = None
             mock_db.return_value = mock_client
@@ -74,12 +77,16 @@ class TestSkill3:
     async def test_writes_copy_files(self, _campaign_dir):
         """Skill 3 writes email-variants.md, linkedin-variants.md, personalization-notes.md."""
         with (
-            patch("core.skills.skill_3_campaign_copy.generate_copy", new_callable=AsyncMock, return_value=MOCK_COPY_RESULT),
+            patch(
+                "core.skills.skill_3_campaign_copy.generate_copy",
+                new_callable=AsyncMock, return_value=MOCK_COPY_RESULT,
+            ),
             patch("core.skills.skill_3_campaign_copy._resolve_vertical_id", return_value=None),
             patch("clients.supabase_client.get_supabase_client") as mock_db,
         ):
             mock_client = MagicMock()
-            mock_client.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(data={"id": "camp-123"})
+            mock_chain = mock_client.table.return_value.select.return_value.eq.return_value
+            mock_chain.maybe_single.return_value.execute.return_value = MagicMock(data={"id": "camp-123"})
             mock_client.table.return_value.upsert.return_value.execute.return_value = None
             mock_client.table.return_value.insert.return_value.execute.return_value = None
             mock_db.return_value = mock_client

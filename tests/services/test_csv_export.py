@@ -1,7 +1,6 @@
 """CSV export service tests."""
 
 import csv
-from pathlib import Path
 
 from services.csv_export import (
     export_companies_to_csv,

@@ -2,10 +2,10 @@
 
 from services.geography import (
     DEFAULT_ALLOWED_COUNTRIES,
-    resolve_geography,
+    build_apollo_location_filter,
     check_company_geography,
     filter_companies_by_geography,
-    build_apollo_location_filter,
+    resolve_geography,
 )
 
 

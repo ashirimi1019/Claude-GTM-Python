@@ -66,7 +66,8 @@ class TestValidateCopyTier2:
         variant = {"body": "x" * 2001 + " as an ai {badPlaceholder}", "subject": "s" * 201}
         result = validate_copy_tier2(variant)
         assert result["valid"] is False
-        assert len(result["errors"]) >= 3  # body length + subject length + hallucination (placeholder may be in overflow)
+        # body length + subject length + hallucination (placeholder may be in overflow)
+        assert len(result["errors"]) >= 3
 
 
 class TestValidateCopyTier3:

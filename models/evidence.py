@@ -7,7 +7,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-
 SignalType = Literal[
     "job_posting", "skill_increase", "recent_funding",
     "growth_metrics", "bombora_intent", "other"

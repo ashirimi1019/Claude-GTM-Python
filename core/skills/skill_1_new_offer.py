@@ -8,7 +8,7 @@ from pathlib import Path
 import structlog
 
 from app.config import get_settings
-from models.offer import OfferCreate, slugify
+from models.offer import OfferCreate
 from services.verticals.context_builder import build_skill_context
 
 logger = structlog.get_logger()

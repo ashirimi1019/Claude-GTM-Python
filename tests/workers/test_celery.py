@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
-import pytest
-
 
 class TestCeleryAppFactory:
     """Tests for create_celery_app()."""
@@ -58,9 +54,8 @@ class TestSkillTasks:
     """Tests for skill task execution."""
 
     def test_run_skill_task_registered(self):
-        from workers.celery_app import celery_app
-
         import workers.skill_tasks  # noqa: F401
+        from workers.celery_app import celery_app
 
         assert "run_skill" in celery_app.tasks
 
@@ -88,16 +83,14 @@ class TestAgentTasks:
     """Tests for agent pipeline tasks."""
 
     def test_agent_pipeline_registered(self):
-        from workers.celery_app import celery_app
-
         import workers.agent_tasks  # noqa: F401
+        from workers.celery_app import celery_app
 
         assert "run_agent_pipeline" in celery_app.tasks
 
     def test_run_agent_cron_registered(self):
-        from workers.celery_app import celery_app
-
         import workers.agent_tasks  # noqa: F401
+        from workers.celery_app import celery_app
 
         assert "run_agent_cron" in celery_app.tasks
 
@@ -106,9 +99,8 @@ class TestScheduledTasks:
     """Tests for Celery Beat scheduled tasks."""
 
     def test_scheduled_tasks_registered(self):
-        from workers.celery_app import celery_app
-
         import workers.scheduled_tasks  # noqa: F401
+        from workers.celery_app import celery_app
 
         assert "run_health_monitor" in celery_app.tasks
         assert "cleanup_stale_runs" in celery_app.tasks

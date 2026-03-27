@@ -87,8 +87,10 @@ async def run_skill_2(config: dict, offers_dir: str = "offers") -> dict:
         db = get_supabase_client()
         # Look up offer_id from slug
         offer_row = (
-            db.table("offers").select("id").eq("slug", offer_slug).single().execute()
+            db.table("offers").select("id").eq("slug", offer_slug).maybe_single().execute()
         )
+        if not offer_row.data:
+            logger.warning("skill_2_offer_not_found", offer_slug=offer_slug)
         offer_id = offer_row.data.get("id", "") if offer_row.data else ""
 
         db.table("campaigns").upsert(

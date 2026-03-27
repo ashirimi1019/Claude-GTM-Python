@@ -2,13 +2,13 @@
 
 import pytest
 
-from models.offer import Offer, OfferCreate, slugify
-from models.campaign import Campaign, CampaignCreate
+from models.campaign import CampaignCreate
 from models.company import Company
 from models.contact import Contact
-from models.message import Message
 from models.evidence import Evidence
+from models.message import Message
 from models.metrics import SequenceMetrics
+from models.offer import OfferCreate, slugify
 
 
 class TestSlugify:

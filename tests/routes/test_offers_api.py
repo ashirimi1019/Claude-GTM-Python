@@ -70,10 +70,14 @@ class TestGetOffer:
 class TestCreateOffer:
     def test_returns_201(self):
         mock_sb = _mock_supabase()
-        mock_sb.table.return_value.insert.return_value.execute.return_value = MagicMock(data=[
-            {"id": "new-id", "slug": "test-offer", "title": "Test Offer", "description": "A test offer", "status": "draft",
-             "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-01T00:00:00Z"},
-        ])
+        mock_sb.table.return_value.insert.return_value.execute.return_value = MagicMock(
+            data=[{
+                "id": "new-id", "slug": "test-offer", "title": "Test Offer",
+                "description": "A test offer", "status": "draft",
+                "created_at": "2026-01-01T00:00:00Z",
+                "updated_at": "2026-01-01T00:00:00Z",
+            }]
+        )
 
         with patch("app.routes.offers.get_supabase_client", return_value=mock_sb):
             client = _client()
@@ -88,7 +92,9 @@ class TestCreateOffer:
 
     def test_conflict_returns_409(self):
         mock_sb = _mock_supabase()
-        mock_sb.table.return_value.insert.return_value.execute.side_effect = Exception("duplicate key value violates unique constraint 23505")
+        mock_sb.table.return_value.insert.return_value.execute.side_effect = Exception(
+            "duplicate key value violates unique constraint 23505"
+        )
 
         with patch("app.routes.offers.get_supabase_client", return_value=mock_sb):
             client = _client()

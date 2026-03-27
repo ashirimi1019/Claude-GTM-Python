@@ -1,9 +1,7 @@
 """Tests for services.icp.validator."""
 
-import pytest
 
 from services.icp.validator import validate_icp_profile
-
 
 # --- Valid profiles ---
 

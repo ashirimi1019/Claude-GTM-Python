@@ -5,9 +5,8 @@ Critical safety feature — auto-pauses sequences on high bounce rates.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
-
 import structlog
+from fastapi import APIRouter, Depends
 
 from app.routes.agents import verify_agent_secret
 
