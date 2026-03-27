@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from typing import Any
 
 import structlog
@@ -10,6 +11,15 @@ import structlog
 from app.config import get_settings
 
 logger = structlog.get_logger()
+
+
+@lru_cache(maxsize=1)
+def _get_openai_client():
+    """Return a cached AsyncOpenAI client instance."""
+    from openai import AsyncOpenAI
+
+    settings = get_settings()
+    return AsyncOpenAI(api_key=settings.openai_api_key)
 
 
 async def generate_copy(
@@ -27,10 +37,7 @@ async def generate_copy(
     Returns:
         Dict with 'email_variants', 'linkedin_variants', 'personalization_notes'.
     """
-    from openai import AsyncOpenAI
-
-    settings = get_settings()
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = _get_openai_client()
 
     system_prompt = f"""You are an expert B2B copywriter for staffing/consulting outbound campaigns.
 
@@ -89,10 +96,7 @@ async def classify_company(
     context: str = "",
 ) -> dict[str, Any]:
     """Classify a company for buyer persona fit via OpenAI."""
-    from openai import AsyncOpenAI
-
-    settings = get_settings()
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = _get_openai_client()
 
     prompt = f"""Classify this company for a staffing/consulting sales campaign.
 
@@ -126,10 +130,7 @@ async def generate_personalization(
     signal: dict[str, Any],
 ) -> str:
     """Generate a personalized opener for a contact based on hiring signals."""
-    from openai import AsyncOpenAI
-
-    settings = get_settings()
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = _get_openai_client()
 
     prompt = f"""Write a natural, one-sentence personalized opener for an outbound email.
 

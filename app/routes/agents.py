@@ -2,24 +2,55 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 
+from app.config import get_settings
+from app.errors import AppError
 from models.api import AgentConfigRequest, ApproveActionRequest, RunAgentsRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 
+async def verify_agent_secret(
+    x_agent_secret: str = Header(...),
+) -> str:
+    """Dependency that validates the x-agent-secret header."""
+    settings = get_settings()
+    if not settings.agent_internal_secret:
+        raise HTTPException(status_code=500, detail="agent_internal_secret not configured")
+    if x_agent_secret != settings.agent_internal_secret:
+        raise HTTPException(status_code=403, detail="Invalid agent secret")
+    return x_agent_secret
+
+
 @router.post("/run")
 async def run_agents(req: RunAgentsRequest) -> dict[str, str]:
-    """Launch agent run for a campaign (stub)."""
-    return {
-        "task_id": str(uuid.uuid4()),
-        "status": "queued",
-        "message": f"Agents queued for {req.offer_slug}/{req.campaign_slug}",
-    }
+    """Launch agent pipeline via Celery."""
+    try:
+        from workers.agent_tasks import run_agent_pipeline
+
+        result = run_agent_pipeline.delay(
+            offer_slug=req.offer_slug,
+            campaign_slug=req.campaign_slug,
+        )
+        return {
+            "task_id": result.id,
+            "status": "queued",
+            "message": f"Agents queued for {req.offer_slug}/{req.campaign_slug}",
+        }
+    except Exception as exc:
+        logger.warning("Celery dispatch failed for agents: %s", exc)
+        raise AppError(
+            message=f"Failed to queue agent pipeline: {exc}",
+            status_code=503,
+            code="QUEUE_UNAVAILABLE",
+        )
 
 
 @router.get("/config")

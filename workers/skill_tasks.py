@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
+import structlog
 from asgiref.sync import async_to_sync
 
 from workers.celery_app import celery_app
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 # Registry mapping skill_id → async skill function
 _SKILL_REGISTRY: dict[int, Any] = {}
@@ -53,11 +53,11 @@ def run_skill_task(
     Skills 1-2 take a config dict. Skills 3-6 take offer_slug + campaign_slug.
     """
     logger.info(
-        "Running skill %d for offer=%s campaign=%s task_id=%s",
-        skill_id,
-        offer_slug,
-        campaign_slug,
-        self.request.id,
+        "Running skill",
+        skill_id=skill_id,
+        offer_slug=offer_slug,
+        campaign_slug=campaign_slug,
+        task_id=self.request.id,
     )
 
     try:
@@ -84,7 +84,7 @@ def run_skill_task(
         }
 
     except Exception as e:
-        logger.error("Skill %d failed: %s", skill_id, str(e), exc_info=True)
+        logger.error("Skill failed", skill_id=skill_id, error=str(e), exc_info=True)
         return {
             "status": "failed",
             "skill_id": skill_id,

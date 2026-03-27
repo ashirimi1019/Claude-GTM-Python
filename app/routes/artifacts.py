@@ -45,7 +45,15 @@ async def list_artifacts(
 async def get_artifact(artifact_path: str):
     """Read a specific artifact file."""
     settings = get_settings()
-    filepath = Path(settings.offers_dir) / artifact_path
+    offers_dir = Path(settings.offers_dir).resolve()
+    filepath = (offers_dir / artifact_path).resolve()
+
+    if not filepath.is_relative_to(offers_dir):
+        raise AppError(
+            message="Invalid artifact path",
+            status_code=400,
+            code="BAD_REQUEST",
+        )
 
     if not filepath.exists():
         raise AppError(

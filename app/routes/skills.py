@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 
 from app.config import get_settings
 from app.errors import AppError
+from app.sse import sse_skill_stream
 from models.api import RunSkillRequest, RunSkillResponse, SkillStatusResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/skills", tags=["skills"])
 
@@ -29,13 +33,28 @@ SKILL_OUTPUTS: dict[int, list[str]] = {
 
 @router.post("/run", response_model=RunSkillResponse)
 async def run_skill(req: RunSkillRequest) -> RunSkillResponse:
-    """Queue a skill run and return a task ID."""
-    task_id = str(uuid.uuid4())
-    return RunSkillResponse(
-        task_id=task_id,
-        status="queued",
-        message=f"Skill {req.skill_id} queued for {req.offer_slug}",
-    )
+    """Queue a skill run via Celery and return the task ID."""
+    try:
+        from workers.skill_tasks import run_skill_task
+
+        result = run_skill_task.delay(
+            skill_id=req.skill_id,
+            offer_slug=req.offer_slug,
+            campaign_slug=req.campaign_slug,
+            config=req.config,
+        )
+        return RunSkillResponse(
+            task_id=result.id,
+            status="queued",
+            message=f"Skill {req.skill_id} queued for {req.offer_slug}",
+        )
+    except Exception as exc:
+        logger.warning("Celery dispatch failed, returning error: %s", exc)
+        raise AppError(
+            message=f"Failed to queue skill: {exc}",
+            status_code=503,
+            code="QUEUE_UNAVAILABLE",
+        )
 
 
 @router.get("/status", response_model=SkillStatusResponse)
@@ -85,18 +104,12 @@ async def run_summary(
 
 @router.get("/stream")
 async def skill_stream(
+    request: Request,
     offer: str = Query(...),
     campaign: str = Query(...),
     skill: int = Query(...),
-) -> StreamingResponse:
-    """SSE placeholder for streaming skill execution logs."""
-
-    async def event_generator():
-        yield f"data: {{\"skill\": {skill}, \"status\": \"connected\"}}\n\n"
-        yield "data: {\"status\": \"done\"}\n\n"
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
+):
+    """SSE stream for skill execution logs via Redis pub/sub."""
+    settings = get_settings()
+    channel = f"skill-run:{offer}:{campaign or 'none'}:{skill}"
+    return await sse_skill_stream(channel, settings.redis_url, request)

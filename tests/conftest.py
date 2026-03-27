@@ -13,6 +13,7 @@ def _set_test_env(monkeypatch):
     monkeypatch.setenv("APOLLO_API_KEY", "test-apollo-key")
     monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("AGENT_INTERNAL_SECRET", "test-agent-secret")
 
     # Clear cached settings between tests
     from app.config import get_settings

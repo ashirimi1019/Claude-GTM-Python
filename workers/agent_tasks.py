@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import logging
-
+import structlog
 from asgiref.sync import async_to_sync
 
 from workers.celery_app import celery_app
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @celery_app.task(bind=True, name="run_agent_pipeline")
@@ -23,8 +22,10 @@ def run_agent_pipeline(
     Conflict resolution runs between phases.
     """
     logger.info(
-        "Agent pipeline started: offer=%s campaign=%s task_id=%s",
-        offer_slug, campaign_slug, self.request.id,
+        "Agent pipeline started",
+        offer_slug=offer_slug,
+        campaign_slug=campaign_slug,
+        task_id=self.request.id,
     )
 
     try:
@@ -85,7 +86,7 @@ def run_agent_pipeline(
         }
 
     except Exception as e:
-        logger.error("Agent pipeline failed: %s", str(e), exc_info=True)
+        logger.error("Agent pipeline failed", error=str(e), exc_info=True)
         return {
             "status": "failed",
             "task_id": self.request.id,
@@ -99,7 +100,7 @@ def run_agent_cron(self):
 
     Called by Celery Beat at 9am UTC daily.
     """
-    logger.info("Agent cron started: task_id=%s", self.request.id)
+    logger.info("Agent cron started", task_id=self.request.id)
 
     # TODO: Query campaigns where autonomy_level = 'autonomous'
     # For each: dispatch run_agent_pipeline.delay(offer_slug, campaign_slug)

@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 import structlog
+
+from app.routes.agents import verify_agent_secret
 
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/cron", tags=["cron"])
 
 
-@router.post("/cleanup-stale-runs")
+@router.post("/cleanup-stale-runs", dependencies=[Depends(verify_agent_secret)])
 async def cleanup_stale_runs():
     """Clean up stale skill runs that have been running for too long.
 

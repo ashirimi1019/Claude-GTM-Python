@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # --- Skills API ---
@@ -45,6 +45,7 @@ class IcpPreviewRequest(BaseModel):
 
 class IcpPreviewResponse(BaseModel):
     """Response from POST /api/icp/preview"""
+    model_config = {"populate_by_name": True}
     summary: dict[str, Any] = {}
     rejection_breakdown: dict[str, int] = {}
     top_rejection_reasons: list[dict[str, Any]] = []
@@ -54,7 +55,7 @@ class IcpPreviewResponse(BaseModel):
     effective_config: dict[str, Any] = {}
     sample_traces: list[dict[str, Any]] = []
     two_stage_info: dict[str, Any] | None = None
-    _meta: dict[str, Any] = {}
+    meta: dict[str, Any] = Field(default_factory=dict, alias="_meta")
 
 
 # --- Agents API ---

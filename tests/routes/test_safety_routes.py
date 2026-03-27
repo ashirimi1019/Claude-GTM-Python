@@ -61,8 +61,24 @@ class TestArtifacts:
 
 
 class TestCron:
-    def test_cleanup_stale_runs(self):
+    def test_cleanup_stale_runs_with_valid_secret(self):
         client = _client()
-        resp = client.post("/api/cron/cleanup-stale-runs")
+        resp = client.post(
+            "/api/cron/cleanup-stale-runs",
+            headers={"x-agent-secret": "test-agent-secret"},
+        )
         assert resp.status_code == 200
         assert resp.json()["cleaned"] == 0
+
+    def test_cleanup_stale_runs_rejects_missing_secret(self):
+        client = _client()
+        resp = client.post("/api/cron/cleanup-stale-runs")
+        assert resp.status_code == 422  # missing required header
+
+    def test_cleanup_stale_runs_rejects_wrong_secret(self):
+        client = _client()
+        resp = client.post(
+            "/api/cron/cleanup-stale-runs",
+            headers={"x-agent-secret": "wrong-secret"},
+        )
+        assert resp.status_code == 403

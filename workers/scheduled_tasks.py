@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import logging
+import structlog
 
 from workers.celery_app import celery_app
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 # Note: run_agent_cron is defined in agent_tasks.py to avoid duplication.
@@ -38,7 +38,7 @@ def run_health_monitor():
     # 4. Classify new replies via OpenAI
     # 5. Process enrollment batches via enrollment_ramp
 
-    logger.info("Health monitor completed", extra=results)
+    logger.info("Health monitor completed", **results)
     return results
 
 

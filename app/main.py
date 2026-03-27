@@ -10,12 +10,14 @@ from fastapi.responses import JSONResponse
 from app.config import get_settings
 from app.errors import AppError, error_response
 from app.routes import health, skills, offers, campaigns, icp, agents, health_monitor, variants, artifacts, cron
+from services.logging import configure_logging
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan — startup and shutdown hooks."""
     # Startup: initialize shared resources
+    configure_logging()
     yield
     # Shutdown: cleanup
 

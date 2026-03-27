@@ -1,5 +1,7 @@
 """Agents API route tests."""
 
+from unittest.mock import MagicMock, patch
+
 from fastapi.testclient import TestClient
 
 from app.main import create_app
@@ -9,7 +11,13 @@ def _client() -> TestClient:
     return TestClient(create_app())
 
 
-def test_run_agents_returns_task_id():
+@patch("workers.agent_tasks.run_agent_pipeline")
+def test_run_agents_returns_task_id(mock_task):
+    """POST /api/agents/run dispatches Celery task and returns its ID."""
+    fake_result = MagicMock()
+    fake_result.id = "agent-celery-id-456"
+    mock_task.delay.return_value = fake_result
+
     client = _client()
     resp = client.post("/api/agents/run", json={
         "offer_slug": "test-offer",
@@ -17,8 +25,26 @@ def test_run_agents_returns_task_id():
     })
     assert resp.status_code == 200
     data = resp.json()
-    assert "task_id" in data
+    assert data["task_id"] == "agent-celery-id-456"
     assert data["status"] == "queued"
+    mock_task.delay.assert_called_once_with(
+        offer_slug="test-offer",
+        campaign_slug="test-campaign",
+    )
+
+
+@patch("workers.agent_tasks.run_agent_pipeline")
+def test_run_agents_returns_503_when_redis_down(mock_task):
+    """POST /api/agents/run returns 503 if Celery dispatch fails."""
+    mock_task.delay.side_effect = ConnectionError("Redis unavailable")
+    client = _client()
+    resp = client.post("/api/agents/run", json={
+        "offer_slug": "test-offer",
+        "campaign_slug": "test-campaign",
+    })
+    assert resp.status_code == 503
+    data = resp.json()
+    assert data["error"] == "QUEUE_UNAVAILABLE"
 
 
 def test_get_agent_config_returns_defaults():
