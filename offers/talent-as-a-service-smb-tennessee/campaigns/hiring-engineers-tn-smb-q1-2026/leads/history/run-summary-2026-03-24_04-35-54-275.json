@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "summaryType": "two-stage-icp",
+  "generatedAt": "2026-03-24T04:35:54.275Z",
+  "runStartedAt": "2026-03-24T04:35:54.256Z",
+  "offerSlug": "talent-as-a-service-smb-tennessee",
+  "campaignSlug": "hiring-engineers-tn-smb-q1-2026",
+  "selectedStrictness": "balanced",
+  "totalSearchCandidates": 55,
+  "stage1Shortlisted": 0,
+  "stage1QualRate": 0,
+  "enrichAttempted": 0,
+  "enrichSucceeded": 0,
+  "enrichRate": 0,
+  "enrichCreditsEstimate": 0,
+  "enrichDurationMs": 0,
+  "stage2Qualified": 0,
+  "rejectedAfterEnrichment": 0,
+  "finalQualRate": 0,
+  "pipelineDurationMs": 18,
+  "outcomeBreakdown": {
+    "rejected-hard-filter": 3,
+    "rejected-scoring": 47,
+    "rejected-confidence": 5
+  },
+  "stage2RejectionReasons": {}
+}

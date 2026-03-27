@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "1774375573660-lead-quality-m2dfit",
+      "agentId": "lead-quality",
+      "timestamp": "2026-03-24T18:06:12.850Z",
+      "offerSlug": "talent-as-a-service-smb-tennessee",
+      "campaignSlug": "hiring-engineers-tn-smb-q1-2026",
+      "observation": "tierA=0, tierB=0, tierC=3, competitors=0",
+      "recommendation": "Only 3 qualified but 9 rejected at Stage 1",
+      "action": "flag-missed-opportunity",
+      "metrics": {
+        "qualRate": 12.7
+      },
+      "outcome": "pending",
+      "outcomeNotes": null
+    },
+    {
+      "id": "1774375574667-icp-tuner-8aeydc",
+      "agentId": "icp-tuner",
+      "timestamp": "2026-03-24T18:06:13.662Z",
+      "offerSlug": "talent-as-a-service-smb-tennessee",
+      "campaignSlug": "hiring-engineers-tn-smb-q1-2026",
+      "observation": "qualRate=12.7%, enrichRate=100.0%, rejectionRatio=81.6%",
+      "recommendation": "82% of shortlisted companies fail after enrichment",
+      "action": "adjust-threshold",
+      "metrics": {
+        "qualRate": 12.7,
+        "enrichRate": 100,
+        "rejectionRatio": 81.57894736842105
+      },
+      "outcome": "pending",
+      "outcomeNotes": null
+    }
+  ],
+  "lastUpdated": "2026-03-24T18:06:14.668Z"
+}
