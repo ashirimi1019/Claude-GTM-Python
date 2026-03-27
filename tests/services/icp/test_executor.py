@@ -87,19 +87,19 @@ class TestGateCompanySize:
 
 class TestGateIndustryExcluded:
     def test_pass_not_excluded(self):
-        r = _rules(hard_filters={"industry_excluded": ["gambling", "tobacco"]})
+        r = _rules(hard_filters={"industries": {"excluded": ["gambling", "tobacco"], "required": []}})
         traces = evaluate_hard_filters(_company(industry="technology"), r)
         industry_trace = next(t for t in traces if t.gate == "industry_excluded")
         assert industry_trace.passed
 
     def test_fail_exact_match(self):
-        r = _rules(hard_filters={"industry_excluded": ["gambling"]})
+        r = _rules(hard_filters={"industries": {"excluded": ["gambling"], "required": []}})
         traces = evaluate_hard_filters(_company(industry="gambling"), r)
         industry_trace = next(t for t in traces if t.gate == "industry_excluded")
         assert not industry_trace.passed
 
     def test_fail_substring_match(self):
-        r = _rules(hard_filters={"industry_excluded": ["gambling"]})
+        r = _rules(hard_filters={"industries": {"excluded": ["gambling"], "required": []}})
         traces = evaluate_hard_filters(_company(industry="online gambling services"), r)
         industry_trace = next(t for t in traces if t.gate == "industry_excluded")
         assert not industry_trace.passed
@@ -107,13 +107,13 @@ class TestGateIndustryExcluded:
 
 class TestGateIndustryRequired:
     def test_pass_matching(self):
-        r = _rules(hard_filters={"industry_required": ["technology", "finance"]})
+        r = _rules(hard_filters={"industries": {"excluded": [], "required": ["technology", "finance"]}})
         traces = evaluate_hard_filters(_company(industry="technology"), r)
         ind_trace = next(t for t in traces if t.gate == "industry_required")
         assert ind_trace.passed
 
     def test_fail_not_matching(self):
-        r = _rules(hard_filters={"industry_required": ["healthcare"]})
+        r = _rules(hard_filters={"industries": {"excluded": [], "required": ["healthcare"]}})
         traces = evaluate_hard_filters(_company(industry="technology"), r)
         ind_trace = next(t for t in traces if t.gate == "industry_required")
         assert not ind_trace.passed
@@ -127,13 +127,13 @@ class TestGateFunding:
         assert fund_trace.passed
 
     def test_fail_excluded_stage(self):
-        r = _rules(hard_filters={"funding_excluded": ["bootstrapped"]})
+        r = _rules(hard_filters={"funding": {"excluded": ["bootstrapped"], "required": []}})
         traces = evaluate_hard_filters(_company(funding_stage="bootstrapped"), r)
         fund_trace = next(t for t in traces if t.gate == "funding")
         assert not fund_trace.passed
 
     def test_fail_required_not_matched(self):
-        r = _rules(hard_filters={"funding_required": ["series_a", "series_b"]})
+        r = _rules(hard_filters={"funding": {"excluded": [], "required": ["series_a", "series_b"]}})
         traces = evaluate_hard_filters(_company(funding_stage="seed"), r)
         fund_trace = next(t for t in traces if t.gate == "funding")
         assert not fund_trace.passed
@@ -141,13 +141,13 @@ class TestGateFunding:
 
 class TestGateCompetitor:
     def test_pass_not_competitor(self):
-        r = _rules(hard_filters={"competitor": True})
+        r = _rules(hard_filters={"competitors": ["staffing", "consulting"]})
         traces = evaluate_hard_filters(_company(name="Acme Corp", industry="technology"), r)
         comp_trace = next(t for t in traces if t.gate == "competitor")
         assert comp_trace.passed
 
     def test_fail_competitor_keyword(self):
-        r = _rules(hard_filters={"competitor": True})
+        r = _rules(hard_filters={"competitors": ["staffing", "consulting"]})
         traces = evaluate_hard_filters(_company(name="Global Staffing Solutions", industry="staffing"), r)
         comp_trace = next(t for t in traces if t.gate == "competitor")
         assert not comp_trace.passed
@@ -155,25 +155,25 @@ class TestGateCompetitor:
 
 class TestGateTechMustHave:
     def test_pass_all_present(self):
-        r = _rules(hard_filters={"tech_must_have": {"keywords": ["python"], "behavior": "require-when-data-exists"}})
+        r = _rules(hard_filters={"tech": {"must_have": ["python"], "behavior": "require-when-data-exists"}})
         traces = evaluate_hard_filters(_company(tech_stack=["python", "react"]), r)
         tech_trace = next(t for t in traces if t.gate == "tech_must_have")
         assert tech_trace.passed
 
     def test_fail_missing_tech(self):
-        r = _rules(hard_filters={"tech_must_have": {"keywords": ["java"], "behavior": "require-when-data-exists"}})
+        r = _rules(hard_filters={"tech": {"must_have": ["java"], "behavior": "require-when-data-exists"}})
         traces = evaluate_hard_filters(_company(tech_stack=["python", "react"]), r)
         tech_trace = next(t for t in traces if t.gate == "tech_must_have")
         assert not tech_trace.passed
 
     def test_pass_no_data_when_data_exists_behavior(self):
-        r = _rules(hard_filters={"tech_must_have": {"keywords": ["java"], "behavior": "require-when-data-exists"}})
+        r = _rules(hard_filters={"tech": {"must_have": ["java"], "behavior": "require-when-data-exists"}})
         traces = evaluate_hard_filters(_company(tech_stack=[]), r)
         tech_trace = next(t for t in traces if t.gate == "tech_must_have")
         assert tech_trace.passed
 
     def test_fail_no_data_require_always(self):
-        r = _rules(hard_filters={"tech_must_have": {"keywords": ["java"], "behavior": "require-always"}})
+        r = _rules(hard_filters={"tech": {"must_have": ["java"], "behavior": "require-always"}})
         traces = evaluate_hard_filters(_company(tech_stack=[]), r)
         tech_trace = next(t for t in traces if t.gate == "tech_must_have")
         assert not tech_trace.passed
@@ -224,12 +224,12 @@ class TestScoringDimensions:
         assert trace.dimensions["hiring_signal"] == 0.0
 
     def test_company_size_ideal(self):
-        r = _rules(scoring={"companySize": {"ideal": [200, 1000], "acceptable": [100, 2000]}})
+        r = _rules(scoring={"company_size": {"ideal_min": 200, "ideal_max": 1000, "acceptable_max": 2000, "partial_min": 100}})
         trace = score_company_icp(_company(employee_count=500), r)
         assert trace.dimensions["company_size"] == 50.0
 
     def test_company_size_acceptable(self):
-        r = _rules(scoring={"companySize": {"ideal": [200, 400], "acceptable": [100, 2000]}})
+        r = _rules(scoring={"company_size": {"ideal_min": 200, "ideal_max": 400, "acceptable_max": 2000, "partial_min": 100}})
         trace = score_company_icp(_company(employee_count=500), r)
         assert trace.dimensions["company_size"] == 30.0
 
@@ -344,7 +344,7 @@ class TestPipeline:
         r = _rules(
             threshold=75.0,
             scoring={
-                "companySize": {"ideal": [200, 1000]},
+                "company_size": {"ideal_min": 200, "ideal_max": 1000, "acceptable_max": 2500, "partial_min": 100},
                 "funding": {"preferred": ["series_b"]},
                 "techStack": {"preferred": ["python", "react"]},
             },

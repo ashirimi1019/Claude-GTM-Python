@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 import structlog
 from fastapi import APIRouter
 
-from app.errors import AppError, to_app_error, error_response
+from app.errors import AppError, to_app_error
 from clients.supabase_client import get_supabase_client
 from models.offer import Offer, OfferCreate
 

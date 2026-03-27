@@ -9,25 +9,25 @@ import structlog
 logger = structlog.get_logger()
 
 
-async def build_snapshot(campaign_id: str) -> dict[str, Any]:
+async def build_snapshot(campaign_slug: str) -> dict[str, Any]:
     """Build campaign state snapshot from DB for agent reasoning.
 
     Returns a dict with campaign data, company/contact counts,
     sequence metrics, and recent learnings.
 
     Args:
-        campaign_id: The campaign UUID to snapshot.
+        campaign_slug: The campaign slug to snapshot.
 
     Returns:
-        Dict with keys: campaign, company_count, contact_count,
+        Dict with keys: campaign, campaign_slug, company_count, contact_count,
         sequence_metrics, recent_learnings.
     """
     # TODO: Wire up Supabase queries once DB client is available.
     # For now, return a stub structure that agents can reason about.
-    logger.info("Building campaign snapshot", campaign_id=campaign_id)
+    logger.info("Building campaign snapshot", campaign_slug=campaign_slug)
 
     return {
-        "campaign_id": campaign_id,
+        "campaign_slug": campaign_slug,
         "campaign": {},
         "company_count": 0,
         "contact_count": 0,

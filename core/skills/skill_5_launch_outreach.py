@@ -238,6 +238,6 @@ def _read_copy_variants(filepath: Path) -> list[dict[str, str]]:
             subject = subject[len("subject:"):].strip()
 
         if subject:
-            variants.append({"subject": subject, "body": body, "wait_days": "3"})
+            variants.append({"subject": subject, "body": body, "wait_days": 3})
 
     return variants

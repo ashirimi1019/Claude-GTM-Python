@@ -77,7 +77,7 @@ async def run_skill_1(config: dict, offers_dir: str = "offers") -> dict:
             {
                 "id": str(uuid.uuid4()),
                 "slug": slug,
-                "name": config["name"],
+                "title": config["name"],
                 "description": offer.description,
                 "default_vertical_id": offer.vertical_id,
                 "status": "draft",

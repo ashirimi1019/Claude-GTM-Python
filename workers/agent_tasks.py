@@ -75,7 +75,7 @@ def run_agent_pipeline(
                     safe_recs.append(rec)
 
         # Auto-apply safe actions
-        applied = async_to_sync(execute_actions)(safe_recs, snapshot.get("campaign_id", ""))
+        applied = async_to_sync(execute_actions)(safe_recs, snapshot.get("campaign_slug", ""))
 
         return {
             "status": "completed",

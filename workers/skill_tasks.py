@@ -75,13 +75,13 @@ def run_skill_task(
         try:
             broker_url = celery_app.conf.get("broker_url", "")
             if broker_url:
-                tracker = SkillRunTracker(
+                with SkillRunTracker(
                     skill_id=skill_id,
                     offer_slug=offer_slug,
                     campaign_slug=campaign_slug,
                     redis_url=broker_url,
-                )
-                tracker.finish()
+                ) as tracker:
+                    tracker.finish()
         except Exception:
             pass  # Best-effort SSE termination
 

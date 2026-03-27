@@ -95,7 +95,7 @@ def _gate_industry_excluded(
     company: dict[str, Any], hf: dict[str, Any]
 ) -> IcpFilterTrace:
     gate = "industry_excluded"
-    excluded = hf.get("industry_excluded")
+    excluded = hf.get("industries", {}).get("excluded", [])
     if not excluded:
         return IcpFilterTrace(gate=gate, passed=True, reason="no excluded industries")
 
@@ -135,7 +135,7 @@ def _gate_industry_required(
     company: dict[str, Any], hf: dict[str, Any]
 ) -> IcpFilterTrace:
     gate = "industry_required"
-    required = hf.get("industry_required")
+    required = hf.get("industries", {}).get("required", [])
     if not required:
         return IcpFilterTrace(gate=gate, passed=True, reason="no required industries")
 
@@ -162,8 +162,8 @@ def _gate_funding(
     company: dict[str, Any], hf: dict[str, Any]
 ) -> IcpFilterTrace:
     gate = "funding"
-    excluded = hf.get("funding_excluded")
-    required = hf.get("funding_required")
+    excluded = hf.get("funding", {}).get("excluded", [])
+    required = hf.get("funding", {}).get("required", [])
 
     funding = company.get("funding_stage") or ""
     funding_lower = funding.lower()
@@ -199,7 +199,7 @@ def _gate_competitor(
     company: dict[str, Any], hf: dict[str, Any]
 ) -> IcpFilterTrace:
     gate = "competitor"
-    if not hf.get("competitor"):
+    if not hf.get("competitors"):
         return IcpFilterTrace(gate=gate, passed=True, reason="competitor filter disabled")
 
     fields_to_check = [
@@ -225,11 +225,11 @@ def _gate_tech_must_have(
     company: dict[str, Any], hf: dict[str, Any]
 ) -> IcpFilterTrace:
     gate = "tech_must_have"
-    tech_cfg = hf.get("tech_must_have")
+    tech_cfg = hf.get("tech", {})
     if not tech_cfg:
         return IcpFilterTrace(gate=gate, passed=True, reason="no tech_must_have filter")
 
-    keywords = tech_cfg.get("keywords", [])
+    keywords = tech_cfg.get("must_have", [])
     if not keywords:
         return IcpFilterTrace(gate=gate, passed=True, reason="no tech keywords specified")
 
@@ -355,10 +355,18 @@ def _score_company_size(company: dict[str, Any], sc: dict[str, Any]) -> float:
     if emp is None:
         return 0.0
 
-    for band, pts in [("ideal", 50), ("acceptable", 30), ("partial", 15)]:
-        rng = size_cfg.get(band, [])
-        if len(rng) >= 2 and rng[0] <= emp <= rng[1]:
-            return float(pts)
+    # Normalizer outputs: ideal_min, ideal_max, acceptable_max, partial_min
+    ideal_min = size_cfg.get("ideal_min", 0)
+    ideal_max = size_cfg.get("ideal_max", 0)
+    acceptable_max = size_cfg.get("acceptable_max", 0)
+    partial_min = size_cfg.get("partial_min", 0)
+
+    if ideal_min and ideal_max and ideal_min <= emp <= ideal_max:
+        return 50.0
+    if ideal_max and acceptable_max and ideal_max < emp <= acceptable_max:
+        return 30.0
+    if partial_min is not None and ideal_min and partial_min <= emp < ideal_min:
+        return 15.0
 
     return 0.0
 

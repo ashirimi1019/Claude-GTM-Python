@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import uuid
 from pathlib import Path
 from typing import Any
 
@@ -128,5 +127,5 @@ async def skill_stream(
 ):
     """SSE stream for skill execution logs via Redis pub/sub."""
     settings = get_settings()
-    channel = f"skill-run:{offer}:{campaign or 'none'}:{skill}"
+    channel = f"skill-run:{offer}:{campaign}:{skill}"
     return await sse_skill_stream(channel, settings.redis_url, request)
