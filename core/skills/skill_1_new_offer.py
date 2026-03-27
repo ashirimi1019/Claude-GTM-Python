@@ -75,7 +75,7 @@ async def run_skill_1(config: dict, offers_dir: str = "offers") -> dict:
         db = get_supabase_client()
         db.table("offers").upsert(
             {
-                "id": str(uuid.uuid4()),
+                "id": str(uuid.uuid5(uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890"), slug)),
                 "slug": slug,
                 "title": config["name"],
                 "description": offer.description,

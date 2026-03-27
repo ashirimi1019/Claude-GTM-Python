@@ -103,11 +103,14 @@ def run_skill_task(
             if redis_url:
                 import redis as _redis
                 _r = _redis.from_url(redis_url)
-                import json as _json
-                _r.publish(
-                    f"skill-run:{offer_slug}:{campaign_slug or 'none'}:{skill_id}",
-                    _json.dumps({"type": "error", "error": str(e)}),
-                )
+                try:
+                    import json as _json
+                    _r.publish(
+                        f"skill-run:{offer_slug}:{campaign_slug or 'none'}:{skill_id}",
+                        _json.dumps({"type": "error", "error": str(e)}),
+                    )
+                finally:
+                    _r.close()
         except Exception:
             pass  # Best-effort SSE notification
         # Re-raise so Celery marks the task as FAILURE and can retry

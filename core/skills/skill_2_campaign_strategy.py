@@ -95,7 +95,7 @@ async def run_skill_2(config: dict, offers_dir: str = "offers") -> dict:
 
         db.table("campaigns").upsert(
             {
-                "id": str(uuid.uuid4()),
+                "id": str(uuid.uuid5(uuid.UUID("b2c3d4e5-f6a7-8901-bcde-f12345678901"), campaign_slug)),
                 "offer_id": offer_id,
                 "slug": campaign_slug,
                 "title": config["name"],

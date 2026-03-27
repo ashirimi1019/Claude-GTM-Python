@@ -351,7 +351,7 @@ def _score_company_size(company: dict[str, Any], sc: dict[str, Any]) -> float:
     """0-50 pts: ideal=50, acceptable=30, partial=15, outside=0."""
     size_cfg = sc.get("companySize") or sc.get("company_size") or {}
     emp = company.get("employee_count")
-    if emp is None:
+    if emp is None or emp <= 0:
         return 0.0
 
     # Normalizer outputs: ideal_min, ideal_max, acceptable_max, partial_min
